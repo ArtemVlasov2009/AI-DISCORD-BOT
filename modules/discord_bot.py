@@ -5,6 +5,7 @@
 '''
 import discord
 import dotenv, os
+from .ai import get_response_from_ai
 
 # Застосовуємо модуль dotenv, для того щоб зробити не видимою нашу змінну TOKEN
 dotenv.load_dotenv()
@@ -25,14 +26,15 @@ async def on_ready():
 
 # Викликаємо бота та звертаємося до його події 
 @bot_client.event
-# Створюємо асинхронну функцію яка буде виводити повідомлення які надійшли від користувачів
 async def on_message(message):
-    # Використовуємо конструкцію try except для того щоб вивести помилку якщо вона виникне
     try:
-        # Робимо перевірку через умову чи повідомлення не від бота
         if message.author != bot_client.user:
             content = message.content
-            # Виводимо повідомлення яке надійшло від користувача
-            await message.channel.send(content)
+            # Отримаємо відповідь від штучного інтелекту, та відправляємо користувачу
+            response = await get_response_from_ai(content)
+            # Отримуємо повідомлення користувача, щоб відповісти на нього
+            message_for_answer = await message.channel.fetch_message(message.id)
+            # Відповідаємо на повідомлення користувача
+            await message_for_answer.reply(response)
     except:
-        print("error")
+        print("Error, message:", message)
